@@ -1,0 +1,22 @@
+GET http://localhost:3000/api/books
+
+POST http://localhost:3000/api/books
+{
+    "title": "",
+    "author": "Robert C. Martin",
+    "status": "Có sẵn"
+}
+
+PUT http://localhost:3000/api/books/1
+{
+    "title": "Sgk toán mới",
+    "author": "NXB GD mới",
+    "status": "Có sẵn"
+}
+
+PATCH http://localhost:3000/api/books/2
+{
+    "status": "Đã mượn"
+}
+
+DELETE http://localhost:3000/api/books/3
