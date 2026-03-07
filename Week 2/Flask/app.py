@@ -29,5 +29,13 @@ def get_single_user(user_id):
         ]
     }), 200
 
+# 3. Stateless: Server không lưu session, Client phải gửi kèm Token mỗi lần gọi
+@app.route('/api/secure-users', methods=['GET'])
+def get_secure_users():
+    auth_token = request.headers.get('Authorization')
+    if not auth_token or auth_token != "Bearer my-secret-token":
+        return jsonify({"error": "Chưa xác thực. Vui lòng gửi kèm Token."}), 401
+    return jsonify({"data": users_db}), 200
+
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
