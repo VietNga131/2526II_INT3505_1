@@ -8,6 +8,14 @@ users_db = [
     {"id": 2, "name": "Trần Thị B"}
 ]
 
+# --- Lớp Service (Tách biệt logic xử lý) ---
+class UserService:
+    @staticmethod
+    def get_user_count():
+        return len(users_db)
+
+# --- Lớp Controller (Chỉ xử lý Request/Response) ---
+
 # 1. Client-Server: Server chỉ trả dữ liệu JSON, không trả giao diện HTML
 @app.route('/api/users', methods=['GET'])
 def get_users():
@@ -43,6 +51,12 @@ def get_users_cached():
     response = make_response(jsonify({"data": users_db}))
     response.headers['Cache-Control'] = 'public, max-age=60'
     return response
+
+# 5. Layered System: Controller gọi qua Service
+@app.route('/api/users/count', methods=['GET'])
+def count_users():
+    count = UserService.get_user_count()
+    return jsonify({"total_users": count}), 200
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
