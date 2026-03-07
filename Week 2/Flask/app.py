@@ -37,5 +37,12 @@ def get_secure_users():
         return jsonify({"error": "Chưa xác thực. Vui lòng gửi kèm Token."}), 401
     return jsonify({"data": users_db}), 200
 
+# 4. Cacheable: Gắn Header báo cho Client biết có thể cache dữ liệu trong 60 giây
+@app.route('/api/users/cached', methods=['GET'])
+def get_users_cached():
+    response = make_response(jsonify({"data": users_db}))
+    response.headers['Cache-Control'] = 'public, max-age=60'
+    return response
+
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
