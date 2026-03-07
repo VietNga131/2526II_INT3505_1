@@ -58,5 +58,14 @@ def count_users():
     count = UserService.get_user_count()
     return jsonify({"total_users": count}), 200
 
+# 6. Code on Demand (Tùy chọn): Trả về script cho Client chạy
+@app.route('/api/widget.js', methods=['GET'])
+def get_executable_code():
+    js_code = """
+    console.log("Đoạn mã này được tải từ REST Server!");
+    alert("Code on Demand đã hoạt động!");
+    """
+    return js_code, 200, {'Content-Type': 'application/javascript'}
+
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
