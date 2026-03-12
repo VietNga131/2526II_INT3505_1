@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, Blueprint
+from flask import Flask, jsonify, request, Blueprint
 
 app = Flask(__name__)
 
@@ -67,31 +67,65 @@ def send_error(error_message, status_code=400, error_code="BAD_REQUEST"):
 
 
 # =====================================================================
-# ÁP DỤNG TÍNH NHẤT QUÁN VÀO CÁC ENDPOINT
+# TÍNH DỄ HIỂU (CLARITY): SỬ DỤNG ĐÚNG HTTP METHODS CHO TỪNG NGHIỆP VỤ
 # =====================================================================
 
-# 1. API Lấy danh sách phiếu mượn (Thành công)
+# Nghiệp vụ 1: Lấy danh sách phiếu mượn (Method: GET)
 @api_v1.route('/borrow-records', methods=['GET'])
 def get_borrow_records():
-    # Thay vì return jsonify(mock_records), ta dùng hàm chuẩn hóa
     return send_success(data=mock_records, message="Lấy danh sách phiếu mượn thành công")
 
-# 2. API Lấy chi tiết 1 phiếu mượn (Xử lý cả Thành công & Lỗi)
-@api_v1.route('/borrow-records/<int:record_id>', methods=['GET'])
-def get_borrow_record_detail(record_id):
-    # Tìm kiếm phiếu mượn trong danh sách giả lập
+# Nghiệp vụ 2: MƯỢN SÁCH (Tạo phiếu mượn mới -> Method: POST)
+# Thay vì dùng URL /create-borrow-record hoặc /muon-sach
+@api_v1.route('/borrow-records', methods=['POST'])
+def borrow_book():
+    # Lấy dữ liệu người dùng gửi lên qua Body (JSON)
+    req_data = request.get_json()
+    
+    # Kiểm tra tính hợp lệ của dữ liệu (Validation)
+    if not req_data or 'book_id' not in req_data or 'user_id' not in req_data:
+        return send_error("Thiếu thông tin book_id hoặc user_id.", 400)
+    
+    # Logic tạo mới (Giả lập tăng ID tự động)
+    new_id = max([r['id'] for r in mock_records]) + 1 if mock_records else 1
+    new_record = {
+        "id": new_id,
+        "book_id": req_data['book_id'],
+        "user_id": req_data['user_id'],
+        "status": "borrowed"
+    }
+    
+    # Lưu vào "Database"
+    mock_records.append(new_record)
+    
+    # Trả về mã 201 Created (Chuẩn HTTP cho việc tạo tài nguyên thành công)
+    return send_success(data=new_record, message="Mượn sách thành công", status_code=201)
+
+
+# Nghiệp vụ 3: TRẢ SÁCH (Cập nhật trạng thái phiếu mượn -> Method: PATCH)
+# Thay vì dùng URL /return-book, ta cập nhật tài nguyên cụ thể qua ID
+@api_v1.route('/borrow-records/<int:record_id>', methods=['PATCH'])
+def return_book(record_id):
+    req_data = request.get_json()
+    
+    # Ràng buộc: Chỉ chấp nhận hành động cập nhật status thành 'returned'
+    if not req_data or req_data.get('status') != 'returned':
+        return send_error("Dữ liệu không hợp lệ. Để trả sách, hãy gửi status là 'returned'.", 400)
+    
+    # Tìm phiếu mượn trong DB
     record = next((r for r in mock_records if r["id"] == record_id), None)
     
-    if record:
-        # Nếu tìm thấy -> Trả về chuẩn Success
-        return send_success(data=record, message="Lấy chi tiết phiếu mượn thành công")
-    else:
-        # Nếu không tìm thấy -> Trả về chuẩn Error
-        return send_error(
-            error_message=f"Không tìm thấy phiếu mượn với ID {record_id}", 
-            status_code=404, 
-            error_code="RECORD_NOT_FOUND"
-        )
+    if not record:
+        return send_error(f"Không tìm thấy phiếu mượn với ID {record_id}", 404)
+    
+    if record['status'] == 'returned':
+        return send_error("Sách này đã được trả trước đó rồi.", 400)
+
+    # Cập nhật trạng thái
+    record['status'] = 'returned'
+    
+    # Trả về 200 OK
+    return send_success(data=record, message=f"Đã trả sách cho phiếu mượn {record_id} thành công")
 
 
 # =====================================================================
