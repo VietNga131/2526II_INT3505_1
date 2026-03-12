@@ -34,6 +34,12 @@ def get_books():
 # SAI:  /borrowRecords (CamelCase), /borrow_records (Snake_case)
 # =====================================================================
 
+# Bảng Người dùng (Tài nguyên Cha)
+mock_users = [
+    {"id": 99, "name": "Nguyen Van A", "email": "nva@example.com"},
+    {"id": 100, "name": "Tran Thi B", "email": "ttb@example.com"}
+]
+
 # Dữ liệu giả lập (Mock Database) - Thêm nhiều data để test phân trang
 mock_records = [
     {"id": 1, "book_id": 101, "user_id": 99, "status": "borrowed"},
@@ -164,6 +170,26 @@ def return_book(record_id):
     # Trả về 200 OK
     return send_success(data=record, message=f"Đã trả sách cho phiếu mượn {record_id} thành công")
 
+
+# =====================================================================
+# HIERARCHY ROUTING: QUAN HỆ CHA - CON
+# Endpoint: GET /users/{user_id}/borrow-records
+# =====================================================================
+@api_v1.route('/users/<int:user_id>/borrow-records', methods=['GET'])
+def get_user_borrow_records(user_id):
+    # 1. (Tùy chọn) Kiểm tra xem user có tồn tại hay không
+    user_exists = any(u for u in mock_users if u['id'] == user_id)
+    if not user_exists:
+        return send_error(f"Không tìm thấy người dùng với ID {user_id}", 404)
+
+    # 2. Lọc danh sách phiếu mượn dựa trên user_id (Quan hệ sở hữu)
+    user_records = [r for r in mock_records if r['user_id'] == user_id]
+
+    # 3. Trả về kết quả
+    return send_success(
+        data=user_records, 
+        message=f"Lấy danh sách phiếu mượn của người dùng {user_id} thành công"
+    )
 
 # =====================================================================
 # TÍNH NHẤT QUÁN Ở CẤP ĐỘ FRAMEWORK (GLOBAL ERROR HANDLING)
