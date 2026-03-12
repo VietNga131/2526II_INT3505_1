@@ -34,10 +34,13 @@ def get_books():
 # SAI:  /borrowRecords (CamelCase), /borrow_records (Snake_case)
 # =====================================================================
 
-# Dữ liệu giả lập (Database)
+# Dữ liệu giả lập (Mock Database) - Thêm nhiều data để test phân trang
 mock_records = [
     {"id": 1, "book_id": 101, "user_id": 99, "status": "borrowed"},
-    {"id": 2, "book_id": 102, "user_id": 100, "status": "returned"}
+    {"id": 2, "book_id": 102, "user_id": 100, "status": "returned"},
+    {"id": 3, "book_id": 103, "user_id": 99, "status": "returned"},
+    {"id": 4, "book_id": 104, "user_id": 101, "status": "borrowed"},
+    {"id": 5, "book_id": 105, "user_id": 99, "status": "borrowed"}
 ]
 
 # =====================================================================
@@ -67,13 +70,47 @@ def send_error(error_message, status_code=400, error_code="BAD_REQUEST"):
 
 
 # =====================================================================
-# TÍNH DỄ HIỂU (CLARITY): SỬ DỤNG ĐÚNG HTTP METHODS CHO TỪNG NGHIỆP VỤ
+# TÍNH DỄ MỞ RỘNG (EXTENSIBILITY): LỌC DỮ LIỆU & PHÂN TRANG (PAGINATION)
 # =====================================================================
-
-# Nghiệp vụ 1: Lấy danh sách phiếu mượn (Method: GET)
 @api_v1.route('/borrow-records', methods=['GET'])
 def get_borrow_records():
-    return send_success(data=mock_records, message="Lấy danh sách phiếu mượn thành công")
+    # 1. Hứng các Query Parameters từ URL (Ví dụ: ?page=1&limit=2&status=borrowed)
+    page = request.args.get('page', default=1, type=int)
+    limit = request.args.get('limit', default=10, type=int)
+    status_filter = request.args.get('status', default='all', type=str)
+    user_id_filter = request.args.get('user_id', default=None, type=int)
+
+    # 2. Xử lý logic LỌC (Filtering)
+    filtered_records = mock_records
+    if status_filter != 'all':
+        filtered_records = [r for r in filtered_records if r['status'] == status_filter]
+    
+    if user_id_filter is not None:
+        filtered_records = [r for r in filtered_records if r['user_id'] == user_id_filter]
+
+    # 3. Xử lý logic PHÂN TRANG (Pagination)
+    total_items = len(filtered_records)
+    start_index = (page - 1) * limit
+    end_index = start_index + limit
+    paginated_records = filtered_records[start_index:end_index]
+
+    # 4. Bọc dữ liệu trả về với Metadata (Giúp API cực kỳ dễ mở rộng sau này)
+    # Thay vì trả về một mảng [], ta trả về một Object {} chứa các keys.
+    response_payload = {
+        "records": paginated_records,
+        "pagination": {
+            "current_page": page,
+            "per_page": limit,
+            "total_items": total_items,
+            "total_pages": (total_items + limit - 1) // limit # Công thức tính tổng số trang
+        },
+        "filters_applied": {
+            "status": status_filter,
+            "user_id": user_id_filter
+        }
+    }
+
+    return send_success(data=response_payload, message="Lấy danh sách phiếu mượn thành công")
 
 # Nghiệp vụ 2: MƯỢN SÁCH (Tạo phiếu mượn mới -> Method: POST)
 # Thay vì dùng URL /create-borrow-record hoặc /muon-sach
