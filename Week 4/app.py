@@ -54,6 +54,20 @@ def get_book(book_id):
     
     return api_response(True, data=book, message="Lay thong tin thanh cong", status_code=200)
 
+# 3. POST /books
+@app.route('/books', methods=['POST'])
+def create_book():
+    data = request.get_json()
+    if not data or not data.get("title") or not data.get("author"):
+        return api_response(False, message="Thieu title hoac author", status_code=400)
+    new_book = {
+        "id": max([b['id'] for b in books] + [0]) + 1,
+        "title": data.get("title"),
+        "author": data.get("author")
+    }
+    books.append(new_book)
+    return api_response(True, data=new_book, message="Them sach thanh cong", status_code=201)
+
 
 
 if __name__ == '__main__':

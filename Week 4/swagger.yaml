@@ -15,14 +15,34 @@ paths:
         - Books
       responses:
         '200':
-          description: Trả về danh sách sách
+          description: Trả về danh sách sách thành công
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Book'
-
+                  $ref: '#/components/schemas/SuccessResponse_ListBooks'
+    post:
+      summary: Thêm một cuốn sách mới
+      tags:
+        - Books
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BookInput'
+      responses:
+        '201':
+          description: Đã tạo sách thành công
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse_SingleBook'
+        '400':
+          description: Bad Resquest
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
   /books/{id}:
     parameters:
@@ -38,13 +58,17 @@ paths:
         - Books
       responses:
         '200':
-          description: Trả về thông tin sách
+          description: Trả về thông tin sách thành công
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Book'
+                $ref: '#/components/schemas/SuccessResponse_SingleBook'
         '404':
           description: Không tìm thấy sách
+          content: 
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
 
 components:
