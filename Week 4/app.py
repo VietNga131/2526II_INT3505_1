@@ -68,6 +68,19 @@ def create_book():
     books.append(new_book)
     return api_response(True, data=new_book, message="Them sach thanh cong", status_code=201)
 
+# 4. PUT /books/{id}
+@app.route('/books/<int:book_id>', methods=['PUT'])
+def update_book(book_id):
+    book = next((b for b in books if b["id"] == book_id), None)
+    if not book:
+        return api_response(False, message="Khong tim thay sach nay", status_code=404)
+    
+    data = request.get_json()
+    book.update({
+        "title": data.get("title", book["title"]),
+        "author": data.get("author", book["author"])
+    })
+    return api_response(True, data=book, message="Cap nhat sach thanh cong", status_code=200)
 
 
 if __name__ == '__main__':

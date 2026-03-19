@@ -69,6 +69,29 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+    put:
+      summary: Cập nhật thông tin sách
+      tags:
+        - Books
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BookInput'
+      responses:
+        '200':
+          description: Cập nhật thành công
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse_SingleBook'
+        '404':
+          description: Không tìm thấy sách
+          content:
+            application/json:
+              schema:
+                ref: '#/components/schemas/ErrorResponse'
 
 
 components:
@@ -97,3 +120,59 @@ components:
         author:
           type: string
           example: "Paulo Coelho"
+
+# --- CÁC FORMAT PHẢN HỒI CHUẨN HÓA ---
+    SuccessResponse_ListBooks:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: "Lấy danh sách thành công"
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Book'
+            
+    SuccessResponse_SingleBook:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: "Thao tác thành công"
+        data:
+          $ref: '#/components/schemas/Book'
+
+    SuccessResponse_DeletedBook:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: "Xóa sách thành công"
+        data:
+          type: object
+          properties:
+            id:
+              type: integer
+              example: 1
+
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        message:
+          type: string
+          example: "Lỗi hoặc không tìm thấy"
+        error:
+          nullable: true
+          example: null
