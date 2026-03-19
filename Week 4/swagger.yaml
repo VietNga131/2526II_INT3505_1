@@ -92,6 +92,23 @@ paths:
             application/json:
               schema:
                 ref: '#/components/schemas/ErrorResponse'
+    delete:
+      summary: Xóa một cuốn sách
+      tags:
+        - Books
+      responses:
+        '200':
+          description: Xóa sách thành công
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse_DeletedBook'
+        '404':
+          description: Không tìm thấy sách
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
 
 components:

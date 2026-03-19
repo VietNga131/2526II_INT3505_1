@@ -82,6 +82,16 @@ def update_book(book_id):
     })
     return api_response(True, data=book, message="Cap nhat sach thanh cong", status_code=200)
 
+# 5. DELETE /books/{id}
+@app.route('/books/<int:book_id>', methods=['DELETE'])
+def delete_book(book_id):
+    global books
+    book = next((b for b in books if b["id"] == book_id), None)
+    if not book:
+        return api_response(False, message="Khong tim thay sach nay", status_code=404)
+    
+    books = [b for b in books if b["id"] != book_id]
+    return api_response(True, data={"id": book_id}, message="Xoa sach thanh cong", status_code=200)
 
 if __name__ == '__main__':
     app.run(debug=True)
