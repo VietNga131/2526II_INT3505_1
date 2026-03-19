@@ -1,0 +1,75 @@
+openapi: 3.0.0
+info:
+  title: Book Management API
+  description: API đơn giản để quản lý thư viện sách bằng Flask
+  version: 1.0.0
+servers:
+  - url: http://localhost:5000
+    description: Local server
+
+paths:
+  /books:
+    get:
+      summary: Lấy danh sách toàn bộ sách
+      tags:
+        - Books
+      responses:
+        '200':
+          description: Trả về danh sách sách
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Book'
+
+
+  /books/{id}:
+    parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+        description: ID của cuốn sách
+    get:
+      summary: Lấy thông tin chi tiết một cuốn sách
+      tags:
+        - Books
+      responses:
+        '200':
+          description: Trả về thông tin sách
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Book'
+        '404':
+          description: Không tìm thấy sách
+
+
+components:
+  schemas:
+    Book:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        title:
+          type: string
+          example: "Đắc Nhân Tâm"
+        author:
+          type: string
+          example: "Dale Carnegie"
+    BookInput:
+      type: object
+      required:
+        - title
+        - author
+      properties:
+        title:
+          type: string
+          example: "Nhà Giả Kim"
+        author:
+          type: string
+          example: "Paulo Coelho"

@@ -1,0 +1,60 @@
+from flask import Flask, jsonify, request
+from flask_swagger_ui import get_swaggerui_blueprint
+from flask import send_from_directory
+
+app = Flask(__name__)
+
+# --- CẤU HÌNH SWAGGER UI ---
+SWAGGER_URL = '/api/docs'  # Đường dẫn để truy cập Swagger UI
+API_URL = '/swagger.yaml'  # Đường dẫn tới file OpenAPI của bạn
+
+swaggerui_blueprint = get_swaggerui_blueprint(
+    SWAGGER_URL,
+    API_URL,
+    config={
+        'app_name': "Book Management API"
+    }
+)
+app.register_blueprint(swaggerui_blueprint, url_prefix=SWAGGER_URL)
+
+# --- MOCK DATA ---
+books = [
+    {"id": 1, "title": "Đắc Nhân Tâm", "author": "Dale Carnegie"},
+    {"id": 2, "title": "Nhà Giả Kim", "author": "Paulo Coelho"}
+]
+
+# --- HÀM CHUẨN HÓA FORMAT PHẢN HỒI ---
+def api_response(success, data=None, message="", status_code=200):
+    """Đảm bảo mọi API đều trả về format: { success, message, data/error }"""
+    response = {"success": success, "message": message}
+    if success:
+        response["data"] = data
+    else:
+        response["error"] = data # Chứa chi tiết lỗi nếu có
+    return jsonify(response), status_code
+
+# --- API ENDPOINTS ---
+
+# Endpoint để phục vụ file swagger.yaml từ thư mục hiện tại ('.')
+@app.route('/swagger.yaml')
+def serve_swagger():
+    return send_from_directory('.', 'swagger.yaml')
+
+# 1. GET /books
+@app.route('/books', methods=['GET'])
+def get_books():
+    return api_response(True, data=books, message="Lay danh sach thanh cong", status_code=200)
+
+# 2. GET /books/{id}
+@app.route('/books/<int:book_id>', methods=['GET'])
+def get_book(book_id):
+    book = next((b for b in books if b["id"] == book_id), None)
+    if not book:
+        return api_response(False, message="Khong tim thay sach", status_code=404)
+    
+    return api_response(True, data=book, message="Lay thong tin thanh cong", status_code=200)
+
+
+
+if __name__ == '__main__':
+    app.run(debug=True)
