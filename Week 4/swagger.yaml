@@ -19,7 +19,7 @@ paths:
           content:
             application/json:
               schema:
-                  $ref: '#/components/schemas/SuccessResponse_ListBooks'
+                $ref: '#/components/schemas/SuccessResponse_ListBooks'
     post:
       summary: Thêm một cuốn sách mới
       tags:
@@ -91,7 +91,7 @@ paths:
           content:
             application/json:
               schema:
-                ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/ErrorResponse'
     delete:
       summary: Xóa một cuốn sách
       tags:
@@ -110,7 +110,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
-
 components:
   schemas:
     Book:
@@ -125,6 +124,7 @@ components:
         author:
           type: string
           example: "Dale Carnegie"
+          
     BookInput:
       type: object
       required:
@@ -138,7 +138,7 @@ components:
           type: string
           example: "Paulo Coelho"
 
-# --- CÁC FORMAT PHẢN HỒI CHUẨN HÓA ---
+    # --- CÁC FORMAT PHẢN HỒI CHUẨN HÓA ---
     SuccessResponse_ListBooks:
       type: object
       properties:
