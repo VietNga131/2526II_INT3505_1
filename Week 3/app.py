@@ -81,6 +81,7 @@ def send_error(error_message, status_code=400, error_code="BAD_REQUEST"):
 @api_v1.route('/borrow-records', methods=['GET'])
 def get_borrow_records():
     # 1. Hứng các Query Parameters từ URL (Ví dụ: ?page=1&limit=2&status=borrowed)
+    #Ví dụ: /borrow-records?page=2&limit=5&status=borrowed
     page = request.args.get('page', default=1, type=int)
     limit = request.args.get('limit', default=10, type=int)
     status_filter = request.args.get('status', default='all', type=str)
