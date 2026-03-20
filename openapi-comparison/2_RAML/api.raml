@@ -1,0 +1,50 @@
+#%RAML 1.0
+title: Library Management API
+version: v1
+mediaType: application/json
+
+types:
+  Book:
+    type: object
+    properties:
+      id?: string
+      title: string
+      author: string
+
+/books:
+  get:
+    description: Lấy danh sách sách
+    responses:
+      200:
+        body:
+          application/json:
+            type: Book[]
+            example: |
+              [
+                {
+                  "id": "1",
+                  "title": "Clean Code",
+                  "author": "Robert C. Martin"
+                }
+              ]
+  post:
+    description: Thêm sách mới
+    body:
+      application/json:
+        type: Book
+        example: |
+          {
+            "title": "Refactoring",
+            "author": "Martin Fowler"
+          }
+    responses:
+      201:
+        body:
+          application/json:
+            type: Book
+            example: |
+              {
+                "id": "2",
+                "title": "Refactoring",
+                "author": "Martin Fowler"
+              }
