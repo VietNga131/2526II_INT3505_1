@@ -4,7 +4,7 @@ Tài liệu này trình bày chi tiết sự khác biệt giữa OpenAPI và cá
 
 ---
 
-## Slide 1: OpenAPI (Swagger) - Tiêu chuẩn Công nghiệp
+## 1: OpenAPI (Swagger) - Tiêu chuẩn Công nghiệp
 OpenAPI Specification (OAS) hiện là chuẩn mô tả RESTful API phổ biến nhất thế giới.
 - **Định dạng:** YAML hoặc JSON.
 - **Triết lý thiết kế:** Cung cấp một ngôn ngữ độc lập với nền tảng để mô tả chi tiết toàn bộ vòng đời của API (Endpoints, Parameters, Authentication, v.v.).
@@ -15,7 +15,7 @@ OpenAPI Specification (OAS) hiện là chuẩn mô tả RESTful API phổ biến
   - Cú pháp thường rất dài (Verbose) và lặp lại.
   - Khó đọc bằng mắt thường nếu API quá lớn.
 
-## Slide 2: API Blueprint - Ưu tiên con người đọc (Human-readable)
+## 2: API Blueprint - Ưu tiên con người đọc (Human-readable)
 API Blueprint được tạo ra với mục tiêu giúp việc viết tài liệu API giống như viết một bài blog.
 - **Định dạng:** Markdown (kết hợp với MSON - Markdown Syntax for Object Notation).
 - **Triết lý thiết kế:** Design-first. Tài liệu phải thân thiện, dễ đọc, dễ hiểu với cả lập trình viên và những người không có nền tảng kỹ thuật (PM, BA, Khách hàng).
@@ -25,7 +25,7 @@ API Blueprint được tạo ra với mục tiêu giúp việc viết tài liệ
   - Sở hữu công cụ Dredd hỗ trợ Contract Testing (Kiểm thử hợp đồng) mạnh mẽ nhất.
 - **Nhược điểm:** Khó mô tả các cấu trúc dữ liệu JSON lồng nhau quá phức tạp.
 
-## Slide 3: RAML (RESTful API Modeling Language)
+## 3: RAML (RESTful API Modeling Language)
 RAML được thiết kế để khắc phục sự lặp lại code của OpenAPI.
 - **Định dạng:** YAML.
 - **Triết lý thiết kế:** Hướng tài nguyên (Resource-oriented) và mô-đun hóa (Modular). Cho phép định nghĩa các `traits`, `resourceTypes` để tái sử dụng cấu trúc.
@@ -34,7 +34,7 @@ RAML được thiết kế để khắc phục sự lặp lại code của OpenA
   - Công cụ sinh giao diện HTML (`raml2html`) cho ra kết quả cực kỳ trực quan.
 - **Nhược điểm:** Đường cong học tập cao hơn do phải hiểu về cách kế thừa (Traits/Types).
 
-## Slide 4: TypeSpec (Trước đây là CADL)
+## 4: TypeSpec (Trước đây là CADL)
 TypeSpec là ngôn ngữ mô tả API thế hệ mới do Microsoft phát triển.
 - **Định dạng:** Cú pháp riêng (Rất giống TypeScript / C#).
 - **Triết lý thiết kế:** "API as Code". Không bắt lập trình viên viết YAML hay JSON. Thay vào đó, viết code bậc cao và dùng Compiler (bộ biên dịch) để đẻ ra file OpenAPI hoặc Protobuf.
@@ -45,7 +45,7 @@ TypeSpec là ngôn ngữ mô tả API thế hệ mới do Microsoft phát triể
 
 ---
 
-## Slide 5: Bảng So Sánh Tổng Hợp
+## 5: Bảng So Sánh Tổng Hợp
 
 | Tiêu chí | OpenAPI 3.0 | API Blueprint | RAML 1.0 | TypeSpec |
 | :--- | :--- | :--- | :--- | :--- |
@@ -56,7 +56,7 @@ TypeSpec là ngôn ngữ mô tả API thế hệ mới do Microsoft phát triể
 
 ---
 
-## Slide 6: So sánh sức mạnh Tự động hóa (Code & Test Generation)
+## 6: So sánh sức mạnh Tự động hóa (Code & Test Generation)
 
 Qua phần Demo thực hành, mỗi chuẩn thể hiện một thế mạnh tự động hóa riêng biệt:
 1. **Mã nguồn (Code Generation):** OpenAPI là vua. Công cụ `openapi-generator` có thể đọc file `.yaml` và sinh ra mã nguồn Server/Client SDK cho hàng chục ngôn ngữ khác nhau (Python, Java, Node.js...).
@@ -66,7 +66,7 @@ Qua phần Demo thực hành, mỗi chuẩn thể hiện một thế mạnh tự
 
 ---
 
-## Slide 7: Kết luận (Khi nào nên dùng công cụ nào?)
+## 7: Kết luận (Khi nào nên dùng công cụ nào?)
 
 - Hãy chọn **OpenAPI** khi xây dựng dự án tiêu chuẩn, làm việc với nhiều đối tác bên ngoài và cần sinh code tự động nhiều nhất có thể.
 - Hãy chọn **API Blueprint** nếu team muốn tài liệu dễ đọc như văn bản thường, thiết kế nhanh và chú trọng vào việc test tự động xem tài liệu có khớp với code thật không.
