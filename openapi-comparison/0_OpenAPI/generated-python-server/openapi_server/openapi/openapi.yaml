@@ -1,0 +1,276 @@
+openapi: 3.0.0
+info:
+  description: API đơn giản để quản lý thư viện sách bằng Flask
+  title: Book Management API
+  version: 1.0.0
+servers:
+- description: Local server
+  url: http://localhost:5000
+paths:
+  /books:
+    get:
+      operationId: books_get
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse_ListBooks"
+          description: Trả về danh sách sách thành công
+      summary: Lấy danh sách toàn bộ sách
+      tags:
+      - Books
+      x-openapi-router-controller: openapi_server.controllers.books_controller
+    post:
+      operationId: books_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BookInput"
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse_SingleBook"
+          description: Đã tạo sách thành công
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+          description: Bad Resquest
+      summary: Thêm một cuốn sách mới
+      tags:
+      - Books
+      x-openapi-router-controller: openapi_server.controllers.books_controller
+  /books/{id}:
+    delete:
+      operationId: books_id_delete
+      parameters:
+      - description: ID của cuốn sách
+        explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse_DeletedBook"
+          description: Xóa sách thành công
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+          description: Không tìm thấy sách
+      summary: Xóa một cuốn sách
+      tags:
+      - Books
+      x-openapi-router-controller: openapi_server.controllers.books_controller
+    get:
+      operationId: books_id_get
+      parameters:
+      - description: ID của cuốn sách
+        explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse_SingleBook"
+          description: Trả về thông tin sách thành công
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+          description: Không tìm thấy sách
+      summary: Lấy thông tin chi tiết một cuốn sách
+      tags:
+      - Books
+      x-openapi-router-controller: openapi_server.controllers.books_controller
+    put:
+      operationId: books_id_put
+      parameters:
+      - description: ID của cuốn sách
+        explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BookInput"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse_SingleBook"
+          description: Cập nhật thành công
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+          description: Không tìm thấy sách
+      summary: Cập nhật thông tin sách
+      tags:
+      - Books
+      x-openapi-router-controller: openapi_server.controllers.books_controller
+components:
+  schemas:
+    Book:
+      example:
+        author: Dale Carnegie
+        id: 1
+        title: Đắc Nhân Tâm
+      properties:
+        id:
+          example: 1
+          title: id
+          type: integer
+        title:
+          example: Đắc Nhân Tâm
+          title: title
+          type: string
+        author:
+          example: Dale Carnegie
+          title: author
+          type: string
+      title: Book
+      type: object
+    BookInput:
+      example:
+        author: Paulo Coelho
+        title: Nhà Giả Kim
+      properties:
+        title:
+          example: Nhà Giả Kim
+          title: title
+          type: string
+        author:
+          example: Paulo Coelho
+          title: author
+          type: string
+      required:
+      - author
+      - title
+      title: BookInput
+      type: object
+    SuccessResponse_ListBooks:
+      example:
+        data:
+        - author: Dale Carnegie
+          id: 1
+          title: Đắc Nhân Tâm
+        - author: Dale Carnegie
+          id: 1
+          title: Đắc Nhân Tâm
+        success: true
+        message: Lấy danh sách thành công
+      properties:
+        success:
+          example: true
+          title: success
+          type: boolean
+        message:
+          example: Lấy danh sách thành công
+          title: message
+          type: string
+        data:
+          items:
+            $ref: "#/components/schemas/Book"
+          title: data
+          type: array
+      title: SuccessResponse_ListBooks
+      type: object
+    SuccessResponse_SingleBook:
+      example:
+        data:
+          author: Dale Carnegie
+          id: 1
+          title: Đắc Nhân Tâm
+        success: true
+        message: Thao tác thành công
+      properties:
+        success:
+          example: true
+          title: success
+          type: boolean
+        message:
+          example: Thao tác thành công
+          title: message
+          type: string
+        data:
+          $ref: "#/components/schemas/Book"
+      title: SuccessResponse_SingleBook
+      type: object
+    SuccessResponse_DeletedBook:
+      example:
+        data:
+          id: 1
+        success: true
+        message: Xóa sách thành công
+      properties:
+        success:
+          example: true
+          title: success
+          type: boolean
+        message:
+          example: Xóa sách thành công
+          title: message
+          type: string
+        data:
+          $ref: "#/components/schemas/SuccessResponse_DeletedBook_data"
+      title: SuccessResponse_DeletedBook
+      type: object
+    ErrorResponse:
+      example:
+        success: false
+        message: Lỗi hoặc không tìm thấy
+        error: ""
+      properties:
+        success:
+          example: false
+          title: success
+          type: boolean
+        message:
+          example: Lỗi hoặc không tìm thấy
+          title: message
+          type: string
+        error:
+          nullable: true
+          title: error
+          example: null
+      title: ErrorResponse
+      type: object
+    SuccessResponse_DeletedBook_data:
+      example:
+        id: 1
+      properties:
+        id:
+          example: 1
+          title: id
+          type: integer
+      title: SuccessResponse_DeletedBook_data
+      type: object
