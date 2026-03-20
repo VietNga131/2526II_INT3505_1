@@ -7,14 +7,14 @@ Thư mục này demo việc định nghĩa tài liệu API bằng chuẩn **Open
 - `openapi.yaml`: File tài liệu gốc định nghĩa các API endpoint (`/books`).
 - `generated-python-server/`: Thư mục chứa toàn bộ mã nguồn server Python (Flask) được sinh ra hoàn toàn tự động từ file yaml.
 
-## 3. Cách sinh code tự động (Đã thực hiện)
+## 3. Cách sinh code tự động
 Lệnh sau đã được sử dụng để tự động tạo ra thư mục `generated-python-server`:
 
 \`\`\`bash
 npx @openapitools/openapi-generator-cli generate -i openapi.yaml -g python-flask -o ./generated-python-server
 \`\`\`
 
-## 4. Hướng dẫn cài đặt và chạy Server
+## 4. Hướng dẫn cài đặt và chạy Server, chạy Test
 **Yêu cầu:** Máy tính đã cài đặt Python 3.
 
 **Bước 1:** Di chuyển vào thư mục server đã được sinh ra
