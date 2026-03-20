@@ -7,3 +7,8 @@
   * [1_APIBlueprint](./1_APIBlueprint/)
   * [2_RAML](./2_RAML/)
   * [3_TypeSpec](./3_TypeSpec/)
+* Xem từng README.md ứng với từng thư mục hướng dẫn cách cài đặt và chạy
+  * [0_OpenAPI](./0_OpenAPI/README.md)
+  * [1_APIBlueprint](./1_APIBlueprint/README.md)
+  * [2_RAML](./2_RAML/README.md)
+  * [3_TypeSpec](./3_TypeSpec/README.md)
