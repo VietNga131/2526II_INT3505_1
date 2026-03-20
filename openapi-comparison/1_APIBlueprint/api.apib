@@ -1,0 +1,34 @@
+FORMAT: 1A
+HOST: http://localhost:3000
+
+# Library Management API
+API này dùng để quản lý sách trong thư viện.
+
+## Books Collection [/books]
+
+### Lấy danh sách sách [GET]
++ Response 200 (application/json; charset=utf-8)
+
+        [
+            {
+                "id": "1",
+                "title": "Clean Code",
+                "author": "Robert C. Martin"
+            }
+        ]
+
+### Thêm sách mới [POST]
++ Request (application/json)
+
+        {
+            "title": "Refactoring",
+            "author": "Martin Fowler"
+        }
+
++ Response 201 (application/json; charset=utf-8)
+
+        {
+            "id": "2",
+            "title": "Refactoring",
+            "author": "Martin Fowler"
+        }
