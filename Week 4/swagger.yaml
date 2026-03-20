@@ -193,3 +193,40 @@ components:
         error:
           nullable: true
           example: null
+
+# components:
+#   schemas:
+#     Book:
+#       type: object
+#       properties:
+#         id: { type: integer, example: 1 }
+#         title: { type: string, example: "Đắc Nhân Tâm" }
+        
+#   parameters:
+#     PageLimit:
+#       name: limit
+#       in: query
+#       schema: { type: integer, default: 10 }
+
+#   responses:
+#     NotFound:
+#       description: Không tìm thấy tài nguyên
+#       content:
+#         application/json:
+#           schema:
+#             $ref: '#/components/schemas/ErrorResponse'
+
+#   requestBodies:
+#     BookPayload:
+#       description: Dữ liệu đầu vào để tạo hoặc sửa sách
+#       required: true
+#       content:
+#         application/json:
+#           schema:
+#             $ref: '#/components/schemas/BookInput'
+
+#   securitySchemes:
+#     BearerAuth:
+#       type: http
+#       scheme: bearer
+#       bearerFormat: JWT

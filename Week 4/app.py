@@ -1,8 +1,10 @@
 from flask import Flask, jsonify, request
 from flask_swagger_ui import get_swaggerui_blueprint
 from flask import send_from_directory
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 
 # --- CẤU HÌNH SWAGGER UI ---
 SWAGGER_URL = '/api/docs'  # Đường dẫn để truy cập Swagger UI
