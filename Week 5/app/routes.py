@@ -1,22 +1,33 @@
-# filename=app/routes.py
 from flask import Blueprint, request, jsonify
 from .models import Book, Reader, BorrowRecord
 from . import db
 
 main_bp = Blueprint('main', __name__)
 
-# --- ENDPOINT 1: SÁCH (Phân trang Offset-based) ---
+# --- Helper: Chuẩn hóa định dạng phản hồi để đảm bảo tính nhất quán ---
+def send_response(data=None, meta=None, message=None, code=200):
+    response = {
+        "status": "success" if code < 400 else "error",
+        "data": data,
+        "meta": meta
+    }
+    if message and code >= 400:
+        response["message"] = message
+    return jsonify(response), code
+
+# --- ENDPOINT 1: SÁCH (Offset-based) ---
 @main_bp.route('/books', methods=['GET'])
 def get_books():
     """
-    Lấy danh sách sách kèm tìm kiếm và phân trang Offset
+    Tìm kiếm và phân trang sách (Offset-based)
     ---
-    tags: [Books]
+    tags:
+      - Books
     parameters:
       - name: q
         in: query
         type: string
-        description: Từ khóa tìm kiếm (tên sách hoặc tác giả)
+        description: Từ khóa tìm kiếm theo tên hoặc tác giả
       - name: page
         in: query
         type: integer
@@ -27,43 +38,42 @@ def get_books():
         default: 10
     responses:
       200:
-        description: Thành công
+        description: Trả về danh sách sách và metadata phân trang
     """
-    search_query = request.args.get('q', '', type=str)
+    q = request.args.get('q', '', type=str)
     page = request.args.get('page', 1, type=int)
     limit = request.args.get('limit', 10, type=int)
 
     query = Book.query
-    if search_query:
-        # Tìm kiếm ilike (không phân biệt hoa thường)
-        query = query.filter(Book.title.ilike(f"%{search_query}%") | Book.author.ilike(f"%{search_query}%"))
+    if q:
+        query = query.filter(Book.title.ilike(f"%{q}%") | Book.author.ilike(f"%{q}%"))
     
-    # Thực hiện phân trang Offset-based của SQLAlchemy
     pagination = query.paginate(page=page, per_page=limit, error_out=False)
-    books = pagination.items
+    
+    data = [{
+        "id": b.id, 
+        "title": b.title, 
+        "author": b.author, 
+        "available": b.available_copies
+    } for b in pagination.items]
 
-    return jsonify({
-        "data": [
-            {
-                "id": b.id, "title": b.title, "author": b.author, 
-                "available": b.available_copies
-            } for b in books
-        ],
-        "meta": {
-            "total_records": pagination.total,
-            "total_pages": pagination.pages,
-            "current_page": pagination.page,
-            "has_next": pagination.has_next
-        }
-    }), 200
+    meta = {
+        "total_records": pagination.total,
+        "total_pages": pagination.pages,
+        "current_page": page,
+        "limit": limit,
+        "has_next": pagination.has_next
+    }
+    return send_response(data=data, meta=meta)
 
-# --- ENDPOINT 2: ĐỘC GIẢ (Phân trang Offset-based) ---
+# --- ENDPOINT 2: ĐỘC GIẢ (Offset-based) ---
 @main_bp.route('/readers', methods=['GET'])
 def get_readers():
     """
-    Lấy danh sách độc giả kèm phân trang Offset
+    Danh sách độc giả (Offset-based)
     ---
-    tags: [Readers]
+    tags:
+      - Readers
     parameters:
       - name: page
         in: query
@@ -75,29 +85,30 @@ def get_readers():
         default: 10
     responses:
       200:
-        description: Thành công
+        description: Trả về danh sách độc giả
     """
     page = request.args.get('page', 1, type=int)
     limit = request.args.get('limit', 10, type=int)
 
     pagination = Reader.query.paginate(page=page, per_page=limit, error_out=False)
-    readers = pagination.items
+    
+    data = [{"id": r.id, "name": r.name, "email": r.email} for r in pagination.items]
+    
+    meta = {
+        "total_records": pagination.total,
+        "current_page": page,
+        "limit": limit
+    }
+    return send_response(data=data, meta=meta)
 
-    return jsonify({
-        "data": [{"id": r.id, "name": r.name, "email": r.email} for r in readers],
-        "meta": {
-            "total_records": pagination.total,
-            "current_page": page
-        }
-    }), 200
-
-# --- ENDPOINT 3: PHIẾU MƯỢN (Phân trang Cursor-based) ---
+# --- ENDPOINT 3: PHIẾU MƯỢN (Cursor-based) ---
 @main_bp.route('/readers/<int:reader_id>/borrows', methods=['GET'])
 def get_reader_borrows(reader_id):
     """
-    Lấy lịch sử mượn của 1 độc giả cụ thể (Phân trang Cursor)
+    Lịch sử mượn sách của độc giả (Cursor-based)
     ---
-    tags: [Borrow Records]
+    tags:
+      - Borrow Records
     parameters:
       - name: reader_id
         in: path
@@ -106,51 +117,41 @@ def get_reader_borrows(reader_id):
       - name: after_id
         in: query
         type: integer
-        description: ID của bản ghi cuối cùng của trang trước
+        default: 0
+        description: ID của bản ghi cuối cùng ở trang trước
       - name: limit
         in: query
         type: integer
         default: 10
     responses:
       200:
-        description: Thành công
+        description: Trả về lịch sử mượn kèm cursor để lấy trang tiếp theo
+      404:
+        description: Không tìm thấy độc giả
     """
     after_id = request.args.get('after_id', 0, type=int)
     limit = request.args.get('limit', 10, type=int)
 
-    # Đảm bảo Reader tồn tại
-    Reader.query.get_or_404(reader_id)
+    # Đảm bảo Reader tồn tại (Tính nhất quán dữ liệu)
+    if not Reader.query.get(reader_id):
+        return send_response(message="Reader not found", code=404)
 
-    # Xây dựng Query Cursor-based
-    # Logic: Lấy các bản ghi của Reader này, sắp xếp theo ID tăng dần, 
-    # và chỉ lấy các ID lớn hơn after_id
     query = BorrowRecord.query.filter(BorrowRecord.reader_id == reader_id)
     if after_id > 0:
         query = query.filter(BorrowRecord.id > after_id)
     
-    # Lấy dữ liệu (limit + 1 để kiểm tra xem còn trang sau không)
-    # results = query.order_by(BorrowRecord.id.asc()).limit(limit + 1).all()
-    
-    # Cách làm đơn giản hơn để test: chỉ lấy đúng limit
     records = query.order_by(BorrowRecord.id.asc()).limit(limit).all()
 
-    # Xác định cursor cho trang tiếp theo (là ID của bản ghi cuối cùng)
-    next_cursor = None
-    if records:
-        next_cursor = records[-1].id
+    data = [{
+        "id": rec.id,
+        "book_title": rec.book.title,
+        "borrow_date": rec.borrow_date.strftime('%Y-%m-%d'),
+        "status": rec.status
+    } for rec in records]
 
-    return jsonify({
-        "data": [
-            {
-                "id": rec.id,
-                "book_title": rec.book.title, # Truy xuất ngược qua backref
-                "borrow_date": rec.borrow_date.strftime('%Y-%m-%d'),
-                "status": rec.status
-            } for rec in records
-        ],
-        "meta": {
-            "current_cursor": after_id,
-            "next_cursor": next_cursor,
-            "limit": limit
-        }
-    }), 200
+    meta = {
+        "limit": limit,
+        "next_cursor": data[-1]['id'] if data else None,
+        "has_more": len(data) == limit
+    }
+    return send_response(data=data, meta=meta)

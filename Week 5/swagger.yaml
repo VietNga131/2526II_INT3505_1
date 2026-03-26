@@ -1,58 +1,73 @@
 openapi: 3.0.0
 info:
   title: Library Management API
-  description: API phục vụ bài thực hành Buổi 5 - SOA
   version: 1.0.0
+  description: API chuẩn hóa cho hệ thống quản lý thư viện - Buổi 5 SOA
 
 paths:
   /books:
     get:
-      summary: Tìm kiếm và phân trang sách
-      tags:
-        - Books
+      tags: [Books]
+      summary: Danh sách sách (Offset Pagination)
       parameters:
         - name: q
           in: query
-          description: Từ khóa tìm kiếm theo tên hoặc tác giả
-          schema:
-            type: string
+          schema: {type: string}
         - name: page
           in: query
-          schema:
-            type: integer
-            default: 1
+          schema: {type: integer, default: 1}
         - name: limit
           in: query
-          schema:
-            type: integer
-            default: 10
+          schema: {type: integer, default: 10}
       responses:
-        '200':
-          description: Thành công
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  data:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/Book'
-                  meta:
-                    $ref: '#/components/schemas/Pagination'
+        200:
+          $ref: '#/components/responses/StandardResponse'
+
+  /readers:
+    get:
+      tags: [Readers]
+      summary: Danh sách độc giả (Offset Pagination)
+      parameters:
+        - name: page
+          in: query
+          schema: {type: integer, default: 1}
+        - name: limit
+          in: query
+          schema: {type: integer, default: 10}
+      responses:
+        200:
+          $ref: '#/components/responses/StandardResponse'
+
+  /readers/{reader_id}/borrows:
+    get:
+      tags: [Borrow Records]
+      summary: Lịch sử mượn sách của độc giả (Cursor Pagination)
+      parameters:
+        - name: reader_id
+          in: path
+          required: true
+          schema: {type: integer}
+        - name: after_id
+          in: query
+          schema: {type: integer, default: 0}
+        - name: limit
+          in: query
+          schema: {type: integer, default: 10}
+      responses:
+        200:
+          $ref: '#/components/responses/StandardResponse'
+        404:
+          description: Không tìm thấy độc giả
 
 components:
-  schemas:
-    Book:
-      type: object
-      properties:
-        id: { type: integer }
-        title: { type: string }
-        author: { type: string }
-        available: { type: integer }
-    Pagination:
-      type: object
-      properties:
-        total_records: { type: integer }
-        current_page: { type: integer }
-        total_pages: { type: integer }
+  responses:
+    StandardResponse:
+      description: Phản hồi chuẩn hóa
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              status: {type: string, example: "success"}
+              data: {type: array, items: {type: object}}
+              meta: {type: object}
