@@ -1,0 +1,58 @@
+openapi: 3.0.0
+info:
+  title: Library Management API
+  description: API phục vụ bài thực hành Buổi 5 - SOA
+  version: 1.0.0
+
+paths:
+  /books:
+    get:
+      summary: Tìm kiếm và phân trang sách
+      tags:
+        - Books
+      parameters:
+        - name: q
+          in: query
+          description: Từ khóa tìm kiếm theo tên hoặc tác giả
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+      responses:
+        '200':
+          description: Thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Book'
+                  meta:
+                    $ref: '#/components/schemas/Pagination'
+
+components:
+  schemas:
+    Book:
+      type: object
+      properties:
+        id: { type: integer }
+        title: { type: string }
+        author: { type: string }
+        available: { type: integer }
+    Pagination:
+      type: object
+      properties:
+        total_records: { type: integer }
+        current_page: { type: integer }
+        total_pages: { type: integer }
