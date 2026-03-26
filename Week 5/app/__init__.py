@@ -1,5 +1,6 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from flasgger import Swagger
 
 # Khởi tạo đối tượng DB nhưng chưa gắn với app ngay (Tránh vòng lặp import)
 db = SQLAlchemy()
@@ -12,6 +13,9 @@ def create_app():
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
     db.init_app(app)
+
+    # Khởi tạo Swagger cho App
+    Swagger(app)
 
     # Đăng ký các Route từ file routes.py
     from .routes import main_bp
