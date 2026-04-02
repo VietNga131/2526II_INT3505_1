@@ -1,52 +1,69 @@
 from app import create_app, db
-from app.models import Book, Reader
+from app.models import Book, Reader, BorrowRecord
+from datetime import datetime, timedelta
 import random
 
 app = create_app()
 
 def seed_database():
     with app.app_context():
-        # 1. Xóa dữ liệu cũ (nếu muốn làm sạch để test lại)
-        # db.drop_all() 
-        # db.create_all()
+        print("--- Đang khởi tạo lại Database ---")
+        db.drop_all()   # Xóa bảng cũ để đảm bảo dữ liệu sạch
+        db.create_all() # Tạo lại bảng mới từ models.py
 
-        # 2. Tạo dữ liệu mẫu cho Sách
-        sample_books = [
-            ("Clean Code", "Robert C. Martin", "9780132350884"),
-            ("The Pragmatic Programmer", "Andrew Hunt", "9780201616224"),
-            ("Design Patterns", "Erich Gamma", "9780201633610"),
-            ("Introduction to Algorithms", "Thomas H. Cormen", "9780262033848"),
-            ("Refactoring", "Martin Fowler", "9780134757599"),
-            ("Head First Design Patterns", "Eric Freeman", "9780596007126"),
-            ("The Mythical Man-Month", "Frederick Brooks", "9780201835953"),
-            ("Code Complete", "Steve McConnell", "9780735619678"),
-            ("Soft Skills", "John Sonmez", "9781617292392"),
-            ("Cracking the Coding Interview", "Gayle Laakmann", "9780984782857")
+        # 1. Nạp dữ liệu Sách (25 cuốn để test phân trang limit=10)
+        book_titles = [
+            "Clean Code", "Refactoring", "Design Patterns", "The Clean Architect",
+            "Domain-Driven Design", "Microservices Patterns", "Python Crash Course",
+            "Flask Web Development", "SQL Cookbook", "Modern Operating Systems",
+            "Compilers: Principles", "Computer Networking", "Artificial Intelligence",
+            "Data Science from Scratch", "Deep Learning with Python", "Fluent Python",
+            "Algorithms Unlocked", "Code Complete", "The Mythical Man-Month",
+            "Soft Skills", "Pragmatic Programmer", "Test Driven Development",
+            "Building Microservices", "Site Reliability Engineering", "Effective Java"
         ]
-
-        print("Đang nạp dữ liệu sách...")
-        for i in range(1, 21):  # Tạo 20 cuốn sách
-            title, author, isbn_base = random.choice(sample_books)
-            new_book = Book(
-                title=f"{title} - Tập {i}",
-                author=author,
-                isbn=f"{isbn_base}{i}",
-                total_copies=5,
-                available_copies=5
+        
+        books = []
+        for i, title in enumerate(book_titles):
+            b = Book(
+                id=100 + i, # ID cố định để dễ quản lý
+                title=title,
+                author=f"Author {i+1}",
+                isbn=f"ISBN-978-{1000+i}",
+                total_copies=10,
+                available_copies=8
             )
-            db.session.add(new_book)
-
-        # 3. Tạo 1 Độc giả mẫu
-        if not Reader.query.filter_by(email="fpt_student@uet.vnu.edu.vn").first():
-            reader = Reader(
-                name="FPT Student",
-                email="fpt_student@uet.vnu.edu.vn",
-                phone="0912345678"
+            books.append(b)
+            db.session.add(b)
+        
+        # 2. Nạp dữ liệu Độc giả (5 người)
+        readers = []
+        for i in range(1, 6):
+            r = Reader(
+                name=f"Độc giả {i}",
+                email=f"reader{i}@example.com",
+                phone=f"090123456{i}"
             )
-            db.session.add(reader)
+            readers.append(r)
+            db.session.add(r)
+        
+        db.session.commit() # Lưu để có ID cho bảng BorrowRecord
+
+        # 3. Nạp dữ liệu Phiếu mượn (15 bản ghi cho Reader 1 để test Cursor)
+        print("--- Đang nạp lịch sử mượn cho Độc giả 1 ---")
+        reader_1 = readers[0]
+        for i in range(1, 16):
+            loan = BorrowRecord(
+                reader_id=reader_1.id,
+                book_id=random.choice(books).id,
+                borrow_date=datetime.utcnow() - timedelta(days=i),
+                due_date=datetime.utcnow() + timedelta(days=7),
+                status=random.choice(['borrowed', 'returned', 'overdue'])
+            )
+            db.session.add(loan)
 
         db.session.commit()
-        print("✅ Đã nạp dữ liệu mẫu thành công!")
+        print("✅ Thành công: Đã nạp 25 sách, 5 độc giả và 15 phiếu mượn!")
 
 if __name__ == '__main__':
     seed_database()
