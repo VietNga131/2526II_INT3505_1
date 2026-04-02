@@ -217,10 +217,5 @@ app.get('/auth/google', (req, res) => {
 // KHỞI ĐỘNG SERVER
 // ============================================================================
 app.listen(PORT, () => {
-    console.log(`🚀 Server đang chạy tại: http://localhost:${PORT}`);
-    console.log(`\n--- HƯỚNG DẪN TEST NHANH BẰNG POSTMAN ---`);
-    console.log(`1. Gửi POST đến http://localhost:${PORT}/api/login`);
-    console.log(`   Body (JSON): { "username": "admin", "password": "123456" }`);
-    console.log(`2. Test API bảo mật: Gửi GET đến http://localhost:${PORT}/api/profile`);
-    console.log(`   (Không cần gắn token thủ công vì nó đã tự lưu vào Cookie)`);
+    console.log(`Server đang chạy tại: http://localhost:${PORT}`);
 });

@@ -1,0 +1,31 @@
+1. Authentication
+POST http://localhost:3000/api/login
+body:
+{
+    "username": "admin",
+    "password": "123456"
+}
+
+2. Verify Token
+GET http://localhost:3000/api/profile
+
+3. Authorization (Kiểm tra Role/Scope)
+POST http://localhost:3000/api/posts
+
+4. Refresh Token Flow (Cấp lại token)
+POST http://localhost:3000/api/refresh
+body:
+{
+    "refreshToken": "chuỗi_refresh_token_phan1"
+}
+
+5. Test Security (Chống Replay Attack)
+POST http://localhost:3000/api/generate-transaction-token
+copy transactionToken trong response
+
+POST http://localhost:3000/api/transfer-money
+body:
+{
+    "transactionToken": "chuỗi_transaction_token"
+}
+
