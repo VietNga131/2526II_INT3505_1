@@ -17,4 +17,24 @@ const options = {
 const token = jwt.sign(payload, JWT_SECRET, options);
 console.log(token);
 
+// Middleware kiểm tra Bearer Token
+function verifyBearerToken(req, res, next) {
+    // Token thường nằm ở header: "Authorization: Bearer <token>"
+    const authHeader = req.headers.authorization;
+    
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({ message: 'Thiếu Bearer token' });
+    }
+
+    const token = authHeader.split(' ')[1]; // Tách chữ "Bearer" ra để lấy token thật
+
+    jwt.verify(token, 'my_secret_key', (err, decodedUser) => {
+        if (err) return res.status(403).json({ message: 'Token không hợp lệ' });
+        
+        // Payload lúc này có thể chứa: { userId: 1, role: 'editor', scopes: ['read:post', 'write:post'] }
+        req.user = decodedUser; 
+        next();
+    });
+}
+
 

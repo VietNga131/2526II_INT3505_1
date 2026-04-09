@@ -7,6 +7,9 @@ Thư mục này demo việc thiết kế API bằng định dạng Markdown củ
 - `api.apib`: File tài liệu API viết bằng Blueprint (Lưu ý định dạng end-of-line phải là `LF`).
 
 ## 3. Cách chạy Demo (Gồm 2 Terminal chạy song song)
+**Xem demo**
+Khởi động server: drakov -f api.apib -p 3000
+Xem kết quả: http://localhost:3000/books
 
 **Bước 1: Chạy Mock Server (Terminal 1)**
 Công cụ `drakov` đọc file tài liệu và tự động dựng lên một server giả lập.

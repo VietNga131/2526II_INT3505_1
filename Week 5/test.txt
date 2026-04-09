@@ -1,0 +1,28 @@
+http://localhost:5000//apidocs/
+
+Case 1: Kiểm tra Phân trang Offset (Sách)
+Yêu cầu: "Lấy trang 1, mỗi trang 5 cuốn sách".
+
+URL: http://127.0.0.1:5000/books?page=1&limit=5
+
+Kết quả: Trả về 5 cuốn đầu tiên. Quan sát phần meta thấy total_records: 25, total_pages: 5.
+
+Case 2: Kiểm tra Tìm kiếm nhất quán
+Yêu cầu: "Tìm các cuốn sách có chữ 'Code'".
+
+URL: http://127.0.0.1:5000/books?q=Code&limit=5
+
+Kết quả: Chỉ trả về các cuốn như "Clean Code", "Code Complete".
+
+Case 3: Kiểm tra Phân trang Cursor (Lịch sử mượn)
+Đây là phần "ăn điểm" vì cho thấy sự khác biệt về kỹ thuật.
+
+Lấy 5 bản ghi đầu tiên của Reader 1:
+http://127.0.0.1:5000/readers/1/borrows?limit=5
+
+Bạn hãy copy giá trị next_cursor trong kết quả (ví dụ là 5).
+
+Lấy trang tiếp theo bằng Cursor:
+http://127.0.0.1:5000/readers/1/borrows?limit=5&after_id=5
+
+Kết quả: Trả về các bản ghi từ ID 6 trở đi. Không bao giờ bị lặp lại dữ liệu cũ.

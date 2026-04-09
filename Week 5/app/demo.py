@@ -18,75 +18,44 @@ def send_response(data=None, meta=None, message=None, code=200):
 # --- ENDPOINT 1: SÁCH (Offset-based) ---
 @main_bp.route('/books', methods=['GET'])
 def get_books():
-    """
-    Tìm kiếm và phân trang sách (Offset-based)
-    ---
-    tags:
-      - Books
-    parameters:
-      - name: q
-        in: query
-        type: string
-        description: Từ khóa tìm kiếm theo tên hoặc tác giả
-      - name: page
-        in: query
-        type: integer
-        default: 1
-      - name: limit
-        in: query
-        type: integer
-        default: 10
-    responses:
-      200:
-        description: Trả về danh sách sách và metadata phân trang
-    """
+    # 1. Lấy tham số từ Query String
     q = request.args.get('q', '', type=str)
-    page = request.args.get('page', 1, type=int)
-    limit = request.args.get('limit', 10, type=int)
+    offset = request.args.get('offset', 0, type=int) # Mặc định bắt đầu từ vị trí 0
+    limit = request.args.get('limit', 10, type=int)  # Mặc định lấy 10 bản ghi
 
+    # 2. Xây dựng Query cơ bản
     query = Book.query
     if q:
         query = query.filter(Book.title.ilike(f"%{q}%") | Book.author.ilike(f"%{q}%"))
     
-    pagination = query.paginate(page=page, per_page=limit, error_out=False)
+    # 3. Tính toán tổng số bản ghi (trước khi áp dụng offset/limit)
+    total_records = query.count()
     
+    # 4. Áp dụng Offset và Limit để lấy dữ liệu
+    # Tương đương SQL: SELECT * FROM books WHERE ... LIMIT 10 OFFSET 0
+    books = query.offset(offset).limit(limit).all()
+    
+    # 5. Chuyển đổi dữ liệu sang định dạng JSON
     data = [{
         "id": b.id, 
         "title": b.title, 
         "author": b.author, 
         "available": b.available_copies
-    } for b in pagination.items]
+    } for b in books]
 
+    # 6. Metadata cho Offset-based
     meta = {
-        "total_records": pagination.total,
-        "total_pages": pagination.pages,
-        "current_page": page,
+        "total_records": total_records,
+        "offset": offset,
         "limit": limit,
-        "has_next": pagination.has_next
+        "has_more": (offset + limit) < total_records # Kiểm tra còn dữ liệu để lấy tiếp không
     }
+    
     return send_response(data=data, meta=meta)
 
 # --- ENDPOINT 2: ĐỘC GIẢ (Page-based) ---
 @main_bp.route('/readers', methods=['GET'])
 def get_readers():
-    """
-    Danh sách độc giả (Offset-based)
-    ---
-    tags:
-      - Readers
-    parameters:
-      - name: page
-        in: query
-        type: integer
-        default: 1
-      - name: limit
-        in: query
-        type: integer
-        default: 10
-    responses:
-      200:
-        description: Trả về danh sách độc giả
-    """
     page = request.args.get('page', 1, type=int)
     limit = request.args.get('limit', 10, type=int)
 
@@ -104,31 +73,6 @@ def get_readers():
 # --- ENDPOINT 3: PHIẾU MƯỢN (Cursor-based) ---
 @main_bp.route('/readers/<int:reader_id>/borrows', methods=['GET'])
 def get_reader_borrows(reader_id):
-    """
-    Lịch sử mượn sách của độc giả (Cursor-based)
-    ---
-    tags:
-      - Borrow Records
-    parameters:
-      - name: reader_id
-        in: path
-        type: integer
-        required: true
-      - name: after_id
-        in: query
-        type: integer
-        default: 0
-        description: ID của bản ghi cuối cùng ở trang trước
-      - name: limit
-        in: query
-        type: integer
-        default: 10
-    responses:
-      200:
-        description: Trả về lịch sử mượn kèm cursor để lấy trang tiếp theo
-      404:
-        description: Không tìm thấy độc giả
-    """
     after_id = request.args.get('after_id', 0, type=int)
     limit = request.args.get('limit', 10, type=int)
 
