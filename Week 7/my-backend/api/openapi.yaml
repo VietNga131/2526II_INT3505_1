@@ -1,0 +1,179 @@
+openapi: 3.0.0
+info:
+  description: API quản lý sản phẩm cho bài thực hành Buổi 7
+  title: Product Management API
+  version: 1.0.0
+servers:
+- description: Local server
+  url: http://localhost:5000
+paths:
+  /products:
+    get:
+      operationId: productsGET
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProductListResponse"
+          description: Thành công
+      summary: Lấy danh sách toàn bộ sản phẩm
+      tags:
+      - Products
+      x-eov-operation-handler: controllers/ProductsController
+    post:
+      operationId: productsPOST
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProductInput"
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProductResponse"
+          description: Tạo thành công
+      summary: Thêm sản phẩm mới
+      tags:
+      - Products
+      x-eov-operation-handler: controllers/ProductsController
+  /products/{id}:
+    delete:
+      operationId: productsIdDELETE
+      parameters:
+      - description: ID của sản phẩm (MongoDB ObjectId)
+        explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          description: Xóa thành công
+      summary: Xóa sản phẩm
+      tags:
+      - Products
+      x-eov-operation-handler: controllers/ProductsController
+    get:
+      operationId: productsIdGET
+      parameters:
+      - description: ID của sản phẩm (MongoDB ObjectId)
+        explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProductResponse"
+          description: Thành công
+      summary: Lấy chi tiết sản phẩm
+      tags:
+      - Products
+      x-eov-operation-handler: controllers/ProductsController
+    put:
+      operationId: productsIdPUT
+      parameters:
+      - description: ID của sản phẩm (MongoDB ObjectId)
+        explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProductInput"
+        required: true
+      responses:
+        "200":
+          description: Cập nhật thành công
+      summary: Cập nhật sản phẩm
+      tags:
+      - Products
+      x-eov-operation-handler: controllers/ProductsController
+components:
+  schemas:
+    Product:
+      example:
+        price: 1500
+        name: Laptop Dell XPS
+        id: 645a1b...
+        category: Electronics
+      properties:
+        id:
+          example: 645a1b...
+          type: string
+        name:
+          example: Laptop Dell XPS
+          type: string
+        price:
+          example: 1500
+          type: number
+        category:
+          example: Electronics
+          type: string
+      type: object
+    ProductInput:
+      example:
+        price: 0.8008281904610115
+        name: name
+        category: category
+      properties:
+        name:
+          type: string
+        price:
+          type: number
+        category:
+          type: string
+      required:
+      - name
+      - price
+      type: object
+    ProductResponse:
+      example:
+        data:
+          price: 1500
+          name: Laptop Dell XPS
+          id: 645a1b...
+          category: Electronics
+        success: true
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: "#/components/schemas/Product"
+      type: object
+    ProductListResponse:
+      example:
+        data:
+        - price: 1500
+          name: Laptop Dell XPS
+          id: 645a1b...
+          category: Electronics
+        - price: 1500
+          name: Laptop Dell XPS
+          id: 645a1b...
+          category: Electronics
+        success: true
+      properties:
+        success:
+          type: boolean
+        data:
+          items:
+            $ref: "#/components/schemas/Product"
+          type: array
+      type: object

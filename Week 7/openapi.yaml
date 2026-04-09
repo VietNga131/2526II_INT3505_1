@@ -1,0 +1,128 @@
+openapi: 3.0.0
+info:
+  title: Product Management API
+  description: API quản lý sản phẩm cho bài thực hành Buổi 7
+  version: 1.0.0
+servers:
+  - url: http://localhost:5000
+    description: Local server
+
+paths:
+  /products:
+    get:
+      summary: Lấy danh sách toàn bộ sản phẩm
+      tags:
+        - Products
+      responses:
+        '200':
+          description: Thành công
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductListResponse'
+    post:
+      summary: Thêm sản phẩm mới
+      tags:
+        - Products
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductInput'
+      responses:
+        '201':
+          description: Tạo thành công
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductResponse'
+
+  /products/{id}:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+        description: ID của sản phẩm (MongoDB ObjectId)
+    get:
+      summary: Lấy chi tiết sản phẩm
+      tags:
+        - Products
+      responses:
+        '200':
+          description: Thành công
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductResponse'
+    put:
+      summary: Cập nhật sản phẩm
+      tags:
+        - Products
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductInput'
+      responses:
+        '200':
+          description: Cập nhật thành công
+    delete:
+      summary: Xóa sản phẩm
+      tags:
+        - Products
+      responses:
+        '200':
+          description: Xóa thành công
+
+components:
+  schemas:
+    Product:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "Laptop Dell XPS"
+        price:
+          type: number
+          example: 1500
+        category:
+          type: string
+          example: "Electronics"
+        id:
+          type: string
+          example: "645a1b..."
+
+    ProductInput:
+      type: object
+      required:
+        - name
+        - price
+      properties:
+        name:
+          type: string
+        price:
+          type: number
+        category:
+          type: string
+
+    ProductResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: '#/components/schemas/Product'
+
+    ProductListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Product'
