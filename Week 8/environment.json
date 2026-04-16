@@ -1,0 +1,16 @@
+{
+	"id": "158de19b-1230-445a-89e1-d05b5286d2b7",
+	"name": "environments",
+	"values": [
+		{
+			"key": "{{baseUrl}}",
+			"value": "",
+			"type": "default",
+			"enabled": true
+		}
+	],
+	"color": null,
+	"_postman_variable_scope": "environment",
+	"_postman_exported_at": "2026-04-16T12:43:14.848Z",
+	"_postman_exported_using": "Postman/12.5.4"
+}
