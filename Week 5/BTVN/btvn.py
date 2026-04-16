@@ -32,10 +32,10 @@ cursor_time = time.time() - start_time
 
 # 2. Hiển thị kết quả
 print("\n" + "="*40)
-print(f"{'Phương pháp':<20} | {'Thời gian thực thi (s)':<20}")
+print(f"{'Phương pháp '} | {'Thời gian thực thi (s)'}")
 print("-" * 40)
-print(f"{'Offset-based':<20} | {offset_time:.6f}s")
-print(f"{'Cursor-based':<20} | {cursor_time:.6f}s")
+print(f"{'Offset-based'} | {offset_time:.6f}s")
+print(f"{'Cursor-based'} | {cursor_time:.6f}s")
 print("="*40)
 
 speed_diff = offset_time / cursor_time if cursor_time > 0 else 0
