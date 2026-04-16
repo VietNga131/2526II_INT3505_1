@@ -1,0 +1,2 @@
+py -m openapi_server
+http://localhost:8080/ui

@@ -1,0 +1,201 @@
+openapi: 3.0.0
+info:
+  title: Product Management API
+  description: API quản lý sản phẩm bằng Python/Flask và MongoDB
+  version: 1.0.0
+servers:
+  - url: http://localhost:8080
+    description: Local server
+
+paths:
+  /products:
+    get:
+      summary: Lấy danh sách toàn bộ sản phẩm
+      tags:
+        - Products
+      responses:
+        '200':
+          description: Lấy danh sách thành công
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse_ListProducts'
+    post:
+      summary: Thêm sản phẩm mới
+      tags:
+        - Products
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductInput'
+      responses:
+        '201':
+          description: Tạo thành công
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse_SingleProduct'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /products/{id}:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+        description: ID của sản phẩm (Chuỗi ObjectId của MongoDB)
+    get:
+      summary: Lấy chi tiết sản phẩm
+      tags:
+        - Products
+      responses:
+        '200':
+          description: Thành công
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse_SingleProduct'
+        '404':
+          description: Không tìm thấy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    put:
+      summary: Cập nhật sản phẩm
+      tags:
+        - Products
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductInput'
+      responses:
+        '200':
+          description: Cập nhật thành công
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse_SingleProduct'
+        '404':
+          description: Không tìm thấy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      summary: Xóa sản phẩm
+      tags:
+        - Products
+      responses:
+        '200':
+          description: Xóa thành công
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse_DeletedProduct'
+        '404':
+          description: Không tìm thấy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  schemas:
+    Product:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "645a1b8e9d8f4c2a1b9e7d6c"
+        name:
+          type: string
+          example: "Laptop Dell XPS"
+        price:
+          type: number
+          example: 1500
+        category:
+          type: string
+          example: "Electronics"
+
+    ProductInput:
+      type: object
+      required:
+        - name
+        - price
+      properties:
+        name:
+          type: string
+          example: "MacBook Pro M3"
+        price:
+          type: number
+          example: 2000
+        category:
+          type: string
+          example: "Electronics"
+
+    # --- CÁC FORMAT PHẢN HỒI CHUẨN HÓA ---
+    SuccessResponse_ListProducts:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: "Lấy danh sách thành công"
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Product'
+
+    SuccessResponse_SingleProduct:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: "Thao tác thành công"
+        data:
+          $ref: '#/components/schemas/Product'
+
+    SuccessResponse_DeletedProduct:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: "Xóa sản phẩm thành công"
+        data:
+          type: object
+          properties:
+            id:
+              type: string
+              example: "645a1b8e9d8f4c2a1b9e7d6c"
+
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        message:
+          type: string
+          example: "Lỗi hoặc không tìm thấy"
+        error:
+          nullable: true
+          example: null
