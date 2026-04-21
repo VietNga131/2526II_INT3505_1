@@ -17,7 +17,7 @@ def format_product(mongo_doc):
     return mongo_doc
 
 
-def products_get():  # noqa: E501
+def products_get():
     """Lấy danh sách toàn bộ sản phẩm"""
     try:
         # Lấy tất cả document từ collection
@@ -34,7 +34,7 @@ def products_get():  # noqa: E501
         return {"success": False, "message": "Lỗi Server", "error": str(e)}, 500
 
 
-def products_post(body=None):  # noqa: E501
+def products_post(body=None):
     """Thêm sản phẩm mới"""
     if connexion.request.is_json:
         body = connexion.request.get_json()
@@ -60,7 +60,7 @@ def products_post(body=None):  # noqa: E501
     return {"success": False, "message": "Dữ liệu không hợp lệ"}, 400
 
 
-def products_id_get(id_):  # noqa: E501
+def products_id_get(id_):
     """Lấy chi tiết sản phẩm"""
     try:
         doc = products_collection.find_one({"_id": ObjectId(id_)})
@@ -77,7 +77,7 @@ def products_id_get(id_):  # noqa: E501
         return {"success": False, "message": "ID không đúng định dạng", "error": "Invalid ObjectId"}, 400
 
 
-def products_id_put(id_, body=None):  # noqa: E501
+def products_id_put(id_, body=None):
     """Cập nhật sản phẩm"""
     if connexion.request.is_json:
         body = connexion.request.get_json()
@@ -112,7 +112,7 @@ def products_id_put(id_, body=None):  # noqa: E501
     return {"success": False, "message": "Dữ liệu không hợp lệ"}, 400
 
 
-def products_id_delete(id_):  # noqa: E501
+def products_id_delete(id_):
     """Xóa sản phẩm"""
     try:
         result = products_collection.delete_one({"_id": ObjectId(id_)})
