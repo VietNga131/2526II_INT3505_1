@@ -1,97 +1,120 @@
 {
   "info": {
-    "_postman_id": "4a70215b-438d-4800-8a9a-11997f9b24be",
-    "name": "Flask-Book-API",
-    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-    "_exporter_id": "52942458",
-    "_collection_link": "https://go.postman.co/collection/52942458-4a70215b-438d-4800-8a9a-11997f9b24be?source=collection_link"
+    "name": "Flask-Book-API-Completed",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
     {
-      "name": "Get",
+      "name": "1. Get all books",
       "event": [
         {
           "listen": "test",
           "script": {
             "exec": [
-              "// 1. Kiểm tra tính đúng đắn (Functional)\r",
-              "pm.test(\"Status code is 200\", function () {\r",
-              "    pm.response.to.have.status(200);\r",
-              "});\r",
-              "\r",
-              "pm.test(\"Response is successful and contains array\", function () {\r",
-              "    const jsonData = pm.response.json();\r",
-              "    pm.expect(jsonData.success).to.be.true;\r",
-              "    pm.expect(jsonData.data).to.be.an('array');\r",
-              "});\r",
-              "\r",
-              "// 2. Kiểm tra hiệu năng (Performance - Response Time)\r",
-              "pm.test(\"Response time is less than 300ms\", function () {\r",
-              "    pm.expect(pm.response.responseTime).to.be.below(300);\r",
-              "});"
+              "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+              "pm.test(\"Response is array\", function () { const res = pm.response.json(); pm.expect(res.success).to.be.true; pm.expect(res.data).to.be.an('array'); });",
+              "pm.test(\"Response time < 300ms\", function () { pm.expect(pm.response.responseTime).to.be.below(300); });"
             ],
-            "type": "text/javascript",
-            "packages": {},
-            "requests": {}
+            "type": "text/javascript"
           }
         }
       ],
       "request": {
         "method": "GET",
-        "header": [],
-        "url": {
-          "raw": "{{baseUrl}}/books",
-          "host": [
-            "{{baseUrl}}"
-          ],
-          "path": [
-            "books"
-          ]
+        "url": "{{baseUrl}}/books"
+      }
+    },
+    {
+      "name": "2. Add new book (POST)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 201\", function () { pm.response.to.have.status(201); });",
+              "pm.test(\"Book created\", function () { const res = pm.response.json(); pm.expect(res.success).to.be.true; pm.collectionVariables.set(\"newBookId\", res.data.id); });"
+            ],
+            "type": "text/javascript"
+          }
         }
-      },
-      "response": []
+      ],
+      "request": {
+        "method": "POST",
+        "header": [ { "key": "Content-Type", "value": "application/json" } ],
+        "body": { "mode": "raw", "raw": "{\n  \"title\": \"Sách QA Testing\",\n  \"author\": \"Newman\"\n}" },
+        "url": "{{baseUrl}}/books"
+      }
     },
     {
-      "name": "Post",
+      "name": "3. Get specific book by ID",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+              "pm.test(\"ID matches\", function () { const res = pm.response.json(); pm.expect(res.data.id).to.eql(Number(pm.collectionVariables.get(\"newBookId\"))); });"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
       "request": {
         "method": "GET",
-        "header": []
-      },
-      "response": []
+        "url": "{{baseUrl}}/books/{{newBookId}}"
+      }
     },
     {
-      "name": "Get id",
+      "name": "4. Update book (PUT)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+              "pm.test(\"Title updated\", function () { const res = pm.response.json(); pm.expect(res.data.title).to.eql(\"Sách QA Testing - Version 2\"); });"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
       "request": {
-        "method": "GET",
-        "header": []
-      },
-      "response": []
+        "method": "PUT",
+        "header": [ { "key": "Content-Type", "value": "application/json" } ],
+        "body": { "mode": "raw", "raw": "{\n  \"title\": \"Sách QA Testing - Version 2\"\n}" },
+        "url": "{{baseUrl}}/books/{{newBookId}}"
+      }
     },
     {
-      "name": "Put",
+      "name": "5. Delete book (DELETE)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+              "pm.test(\"Deleted successfully\", function () { const res = pm.response.json(); pm.expect(res.success).to.be.true; });"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
       "request": {
-        "method": "GET",
-        "header": []
-      },
-      "response": []
-    },
-    {
-      "name": "Delete",
-      "request": {
-        "method": "GET",
-        "header": []
-      },
-      "response": []
+        "method": "DELETE",
+        "url": "{{baseUrl}}/books/{{newBookId}}"
+      }
     }
   ],
   "variable": [
     {
       "key": "baseUrl",
-      "value": ""
+      "value": "http://127.0.0.1:5000",
+      "type": "string"
     },
     {
       "key": "newBookId",
-      "value": ""
+      "value": "",
+      "type": "string"
     }
   ]
 }

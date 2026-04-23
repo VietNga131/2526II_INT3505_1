@@ -1,0 +1,5 @@
+locust -f demo.py
+
+Chạy 2 cửa sổ đồng thời: 
+    py app.py
+    newman run collection.json
