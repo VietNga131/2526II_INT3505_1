@@ -1,5 +1,7 @@
-locust -f demo.py
+-unit test: pytest test_app.py -v
+-integration test: pytest test_integration.py -v -s
+-performance test_integration: locust -f demo.py
 
-Chạy 2 cửa sổ đồng thời: 
+-Chạy 2 cửa sổ đồng thời: 
     py app.py
     newman run collection.json
