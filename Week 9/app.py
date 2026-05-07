@@ -33,6 +33,39 @@ def users_query():
         return jsonify({"version": "v2", "data": users_v2})
     return jsonify({"version": "v1", "data": users_v1})
 
+# CASE STUDY: PAYMENT
+@bp_v1.route('/payments', methods=['POST'])
+def process_payment_v1():
+    data = request.json or {}
+    amount = data.get('amount')
+    
+    response = jsonify({
+        "status": "success",
+        "message": "Payment processed (v1)",
+        "processed_amount": amount,
+        "warning": "This endpoint is deprecated. Upgrade to v2."
+    })
+    
+    # Gắn Header cảnh báo Deprecation
+    response.headers['Deprecation'] = 'true'
+    response.headers['Warning'] = '299 - "This API version is deprecated and will be removed on 2026-12-31."'
+    return response, 200
+
+@bp_v2.route('/payments', methods=['POST'])
+def process_payment_v2():
+    data = request.json or {}
+    amount = data.get('amount')
+    payment_method = data.get('paymentMethod')
+
+    if not amount or 'currency' not in amount or not payment_method:
+        return jsonify({"error": "Missing new required fields (currency, paymentMethod)"}), 400
+    
+    return jsonify({
+        "status": "success",
+        "message": "Payment processed successfully (v2)",
+        "details": f"{amount.get('value')} {amount.get('currency')} via {payment_method}"
+    }), 200
+
 # Đăng ký Blueprints vào app
 app.register_blueprint(bp_v1)
 app.register_blueprint(bp_v2)
