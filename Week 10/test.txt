@@ -1,0 +1,5 @@
+Monitoring Metrics: GET http://localhost:5000/metrics
+
+Rate Limiting: GET http://localhost:5000/api/public-data
+
+Circuit Breaker: GET http://localhost:5000/api/external
