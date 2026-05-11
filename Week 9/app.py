@@ -33,12 +33,40 @@ def users_query():
         return jsonify({"version": "v2", "data": users_v2})
     return jsonify({"version": "v1", "data": users_v1})
 
+
 # CASE STUDY: PAYMENT
+
+# TẦNG SERVICE (Business Logic cốt lõi)
+
+class PaymentService:
+    @staticmethod
+    def execute_payment(value, currency, method):
+        # Giả lập xử lý thành công
+        return {
+            "processed_value": value,
+            "currency": currency,
+            "method": method
+        }
+
+
+
+# TẦNG CONTROLLER (Routes / Xử lý I/O)
+
+# --- V1: Legacy Endpoint (Adapter) ---
 @bp_v1.route('/payments', methods=['POST'])
 def process_payment_v1():
+    # Nhận I/O từ Request
     data = request.json or {}
     amount = data.get('amount')
     
+    # Adapter: Gọi Service với các thông số mặc định cho app cũ
+    PaymentService.execute_payment(
+        value=amount, 
+        currency="VND",
+        method="UNKNOWN_CARD"
+    )
+    
+    # Format Response trả về
     response = jsonify({
         "status": "success",
         "message": "Payment processed (v1)",
@@ -49,21 +77,34 @@ def process_payment_v1():
     # Gắn Header cảnh báo Deprecation
     response.headers['Deprecation'] = 'true'
     response.headers['Warning'] = '299 - "This API version is deprecated and will be removed on 2026-12-31."'
+    
     return response, 200
 
+
+# --- V2: Modern Endpoint ---
 @bp_v2.route('/payments', methods=['POST'])
 def process_payment_v2():
+    # Nhận và Validate I/O
     data = request.json or {}
     amount = data.get('amount')
     payment_method = data.get('paymentMethod')
 
+    # Validate bắt buộc theo chuẩn mới
     if not amount or 'currency' not in amount or not payment_method:
         return jsonify({"error": "Missing new required fields (currency, paymentMethod)"}), 400
     
+    # Gọi Service xử lý cốt lõi bằng dữ liệu chuẩn mới
+    service_result = PaymentService.execute_payment(
+        value=amount.get('value'),
+        currency=amount.get('currency'),
+        method=payment_method
+    )
+    
+    # Format Response trả về
     return jsonify({
         "status": "success",
         "message": "Payment processed successfully (v2)",
-        "details": f"{amount.get('value')} {amount.get('currency')} via {payment_method}"
+        "details": f"{service_result['processed_value']} {service_result['currency']} via {service_result['method']}"
     }), 200
 
 # Đăng ký Blueprints vào app
