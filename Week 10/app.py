@@ -40,7 +40,7 @@ db_breaker = pybreaker.CircuitBreaker(fail_max=3, reset_timeout=10)
 
 
 # 5. ENDPOINTS THỰC HÀNH
-+
+
 @app.route('/api/public-data', methods=['GET'])
 @limiter.limit("5 per minute") # Custom rate limit: Tối đa 5 req/phút cho IP
 def get_public_data():
