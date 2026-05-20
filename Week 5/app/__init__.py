@@ -9,7 +9,7 @@ def create_app():
     app = Flask(__name__)
 
     # Cấu hình MySQL: mysql+pymysql://user:password@localhost/db_name
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:pass@localhost/library_db'
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:ruviet135@localhost/library_db'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
     db.init_app(app)
@@ -18,7 +18,7 @@ def create_app():
     Swagger(app)
 
     # Đăng ký các Route từ file routes.py
-    from .routes import main_bp
+    from .demo import main_bp
     app.register_blueprint(main_bp)
 
     return app
