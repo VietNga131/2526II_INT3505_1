@@ -1,49 +1,47 @@
-# routes_webhook.py
+import queue
+import threading
+import time
 from flask import Blueprint, request, jsonify
-import hmac
-import hashlib
 import json
-from models import users_db
 
 webhook_bp = Blueprint('webhook', __name__)
 
-# Secret key được cấp bởi cổng thanh toán (chỉ bạn và cổng thanh toán biết)
-WEBHOOK_SECRET = "thu_vien_secret_key_2026"
+# 1. Giả lập một Message Queue (Trong thực tế hệ thống lớn sẽ dùng Kafka)
+notification_queue = queue.Queue()
 
+# 2. Tạo một Worker Service chạy ngầm độc lập
+def email_notification_worker():
+    while True:
+        # Lấy event ra khỏi queue (sẽ block nếu queue rỗng)
+        event = notification_queue.get()
+        user_id = event['user_id']
+        amount = event['amount']
+        
+        print(f"\n[Notification Service] Chuẩn bị gửi email cho {user_id}...")
+        time.sleep(2) # Giả lập độ trễ khi gọi API gửi email (SendGrid/AWS SES)
+        print(f"[Notification Service] 📧 Đã gửi biên lai {amount} VND thành công cho {user_id}!\n")
+        
+        notification_queue.task_done()
+
+# Khởi chạy Worker ngầm ngay khi app start
+threading.Thread(target=email_notification_worker, daemon=True).start()
+
+# 3. Endpoint Webhook chỉ làm nhiệm vụ Publish Event
 @webhook_bp.route('/webhooks/payment', methods=['POST'])
 def handle_payment_webhook():
-    # 1. Lấy chữ ký từ cổng thanh toán gửi sang qua Header
-    signature_header = request.headers.get('X-Payment-Signature')
-    payload_bytes = request.data # Lấy chuỗi byte gốc của request
+    # (Giả định đã qua bước kiểm tra chữ ký xác thực như bài trước)
+    payload = request.json
     
-    if not signature_header:
-        return jsonify({"error": "Missing signature"}), 401
-
-    # 2. Tạo mã băm (hash) từ payload nhận được và Secret Key của mình
-    expected_signature = hmac.new(
-        WEBHOOK_SECRET.encode('utf-8'),
-        payload_bytes,
-        hashlib.sha256
-    ).hexdigest()
-
-    # 3. So sánh chữ ký để xác thực
-    if not hmac.compare_digest(expected_signature, signature_header):
-        return jsonify({"error": "Invalid signature. Are you a hacker?"}), 403
-
-    # 4. Xử lý nghiệp vụ nếu chữ ký hợp lệ
-    event_data = json.loads(payload_bytes)
-    
-    if event_data.get("event") == "payment.success":
-        user_id = event_data.get("data", {}).get("user_id")
-        amount = event_data.get("data", {}).get("amount")
+    if payload.get("event") == "payment.success":
+        user_id = payload["data"]["user_id"]
+        amount = payload["data"]["amount"]
         
-        print(f"[Webhook] Nhận thông báo thanh toán {amount} VND từ user {user_id}")
-        
-        # Cập nhật trạng thái người dùng trong Database
-        if user_id in users_db:
-            users_db[user_id]["late_fee_status"] = "PAID"
-            print(f"[System] Đã xóa nợ cho user {user_id}")
+        # CHUẨN EVENT-DRIVEN: Không gửi email ở đây! Push vào Queue
+        notification_queue.put({
+            "user_id": user_id,
+            "amount": amount
+        })
+        print(f"[Webhook Receiver] Đã đẩy event thanh toán của {user_id} vào Queue.")
 
-    # 5. Phản hồi ngay lập tức (200 OK) để cổng thanh toán biết mình đã nhận
-    # Trong hệ thống lớn, đoạn cập nhật DB ở trên nên được đẩy vào Message Queue (RabbitMQ/Kafka)
-    return jsonify({"status": "Webhook received and processed"}), 200
+    # Trả về 200 ngay lập tức, tốn chưa tới 10ms
+    return jsonify({"status": "received"}), 200
